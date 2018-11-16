@@ -27,8 +27,8 @@ var (
 	insecure                    = flag.Bool("insecure", true, "Ignore server certificate if using https")
 	httpClientTimeout           = flag.Int("http.client.timeout", 10, "Timeout for the go http client in seconds for the request to the Cloudera API and the Flume Agents.")
 	clouderaApiUri              = flag.String("cloudera.api.uri", "http://localhost:7180/api/v6", "Cloudera API URI")
-	clouderaApiScrapeInterval   = flag.Int("cloudera.api.scrape.interval", 300, "Interval to scrape the Cloudera API in seconds.")
-	clouderaFlumeScrapeInterval = flag.Int("cloudera.flume.scrape.interval", 60, "Interval to scrape the Cloudera Flume Agents in seconds.")
+	clouderaApiScrapeInterval   = flag.Int("cloudera.api.scrape.interval", 0, "Interval to scrape the Cloudera API in seconds for scraping in the background (don't forget to also set -cloudera.flume.scrape.interval).")
+	clouderaFlumeScrapeInterval = flag.Int("cloudera.flume.scrape.interval", 0, "Interval to scrape the Cloudera Flume Agents in seconds for scraping in the background (don't forget to also set -clouderaApiScrapeInterval).")
 )
 
 // exporter specific variables
@@ -164,6 +164,13 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (e *Exporter) collect(ch chan<- prometheus.Metric) error {
+	if *clouderaApiScrapeInterval == 0 {
+		getConfigJson()
+	}
+	if *clouderaFlumeScrapeInterval == 0 {
+		getFlumeJson()
+	}
+
 	resp, err := e.client.Get(e.URI)
 	if err != nil {
 		e.clouderaUp.Set(0)
@@ -256,7 +263,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 // load content from URI (JSON)
 func getContent(uri string) (body string, err error) {
-	//fmt.Println("GETCONTENT: " + uri)
+	fmt.Println("GETCONTENT: " + uri)
 	scrapeError = 0
 
 	httpClient := &http.Client{
@@ -523,11 +530,14 @@ func main() {
 	}
 
 	// do initial load of config from Cloudera API
-	log.Infof("Loading config and metrics for the first time ...")
-	log.Infof("  (This can take some time depending on the size of your cluster setup and your network speed.)")
-	getConfigJson()
-	getFlumeJson()
-	log.Infof("... DONE")
+	if *clouderaApiScrapeInterval > 0 {
+		log.Infof("Execute initial config load from Cloudera API...")
+		getConfigJson()
+	}
+	if *clouderaFlumeScrapeInterval > 0 {
+		log.Infof("Execute initial parsing of all Flume Agents...")
+		getFlumeJson()
+	}
 
 	exporter := ClouderaExporter(*clouderaApiUri)
 	prometheus.MustRegister(exporter)
@@ -547,12 +557,16 @@ func main() {
 	})
 
 	// Collect everything regularly in the background
-	go func() {
-		jobGetConfigJson()
-	}()
-	go func() {
-		jobGetFlumeJson()
-	}()
+	if *clouderaApiScrapeInterval > 0 {
+		go func() {
+			jobGetConfigJson()
+		}()
+	}
+	if *clouderaFlumeScrapeInterval > 0 {
+		go func() {
+			jobGetFlumeJson()
+		}()
+	}
 
 	log.Fatal(http.ListenAndServe(*listeningAddress, nil))
 }
