@@ -263,7 +263,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 // load content from URI (JSON)
 func getContent(uri string) (body string, err error) {
-	fmt.Println("GETCONTENT: " + uri)
+	//fmt.Println("GETCONTENT: " + uri)
 	scrapeError = 0
 
 	httpClient := &http.Client{
