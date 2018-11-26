@@ -8,12 +8,9 @@ import (
 	"os"
 )
 
-//node_exporter.gofunc main() {
 func main() {
-	//log.AddFlags(*loglevel)
 	log.AddFlags(kingpin.CommandLine)
 	kingpin.Parse()
-	//flag.Parse()
 
 	clouderauser = os.Getenv("CLOUDERAUSER")
 	clouderapass = os.Getenv("CLOUDERAPASS")
