@@ -1,10 +1,10 @@
 package main
 
 import (
-	"sync"
-	"net/http"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/tidwall/gjson"
+	"net/http"
+	"sync"
 )
 
 type FlumeAgent struct {

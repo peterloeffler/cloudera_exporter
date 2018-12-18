@@ -1,14 +1,14 @@
 package main
 
 import (
-        "crypto/tls"
-        "errors"
-        "github.com/prometheus/common/log"
-        "github.com/tidwall/gjson"
-        "io/ioutil"
-        "net/http"
-        "strconv"
-        "time"
+	"crypto/tls"
+	"errors"
+	"github.com/prometheus/common/log"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 // load content from URI (JSON)
@@ -101,10 +101,21 @@ func getConfigJson() {
 
 		localHostsDetail = append(localHostsDetail, bodyHostsDetail)
 
-		if gjson.Get(bodyHostsDetail, "healthSummary").String() == "GOOD" {
+		switch gjson.Get(bodyHostsDetail, "healthSummary").String() {
+		case "GOOD":
 			hostHealthSummary = 0
-		} else {
+		case "BAD":
 			hostHealthSummary = 1
+		case "DISABLED":
+			hostHealthSummary = 2
+		case "HISTORY_NOT_AVAILABLE":
+			hostHealthSummary = 3
+		case "NOT_AVAILABLE":
+			hostHealthSummary = 4
+		case "CONCERNING":
+			hostHealthSummary = 5
+		default:
+			hostHealthSummary = -1
 		}
 
 		hostId := gjson.Get(bodyHostsDetail, "hostId").String() // can be done different (comes from above)
@@ -170,16 +181,40 @@ func getConfigJson() {
 				}
 			}
 
-			if serviceStateString == "STARTED" {
+			switch serviceStateString {
+			case "STARTED":
 				serviceState = 0
-			} else {
+			case "STOPPED":
 				serviceState = 1
+			case "HISTORY_NOT_AVAILABLE":
+				serviceState = 2
+			case "UNKNOWN":
+				serviceState = 3
+			case "STARTING":
+				serviceState = 4
+			case "STOPPING":
+				serviceState = 5
+			case "NA":
+				serviceState = 6
+			default:
+				serviceState = -1
 			}
 
-			if serviceHealthString == "GOOD" {
+			switch serviceHealthString {
+			case "GOOD":
 				serviceHealth = 0
-			} else {
+			case "BAD":
 				serviceHealth = 1
+			case "DISABLED":
+				serviceHealth = 2
+			case "HISTORY_NOT_AVAILABLE":
+				serviceHealth = 3
+			case "NOT_AVAILABLE":
+				serviceHealth = 4
+			case "CONCERNING":
+				serviceHealth = 5
+			default:
+				serviceHealth = -1
 			}
 
 			serviceMetrics := Service{

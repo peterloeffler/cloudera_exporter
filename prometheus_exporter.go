@@ -1,14 +1,14 @@
 package main
 
 import (
-        "crypto/tls"
-        "fmt"
-        "github.com/prometheus/client_golang/prometheus"
-        "github.com/prometheus/common/log"
-        "github.com/tidwall/gjson"
-        "net/http"
-        "strconv"
-        "time"
+	"crypto/tls"
+	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
+	"github.com/tidwall/gjson"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 // ClouderaExporter returns an initialized Exporter.
@@ -37,7 +37,7 @@ func ClouderaExporter(uri string) *Exporter {
 		),
 		host_health_summary: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "host_health_summary"),
-			"Cloudera Host Health Summary. 0 is GOOD, 1 is something else.",
+			"Cloudera Host Health Summary. 0=GOOD, 1=BAD, 2=DISABLED, 3=HISTORY_NOT_AVAILABLE, 4=NOT_AVAILABLE, 5=CONCERNING, -1=NOTHING_FROM_API_DOCUMENTATION.",
 			hostLabelNames, nil,
 		),
 		host_health_summary_last_scrape: prometheus.NewDesc(
@@ -47,7 +47,7 @@ func ClouderaExporter(uri string) *Exporter {
 		),
 		service_state: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "service_state"),
-			"Cloudera Service State. 0 is STARTED, 1 is something else.",
+			"Cloudera Service State. 0=STARTED, 1=STOPPED, 2=HISTORY_NOT_AVAILABLE, 3=UNKNOWN, 4=STARTING, 5=STOPPING, 6=NA, -1=NOTHING_FROM_API_DOCUMENTATION.",
 			serviceLabelNames, nil,
 		),
 		service_state_last_scrape: prometheus.NewDesc(
@@ -57,7 +57,7 @@ func ClouderaExporter(uri string) *Exporter {
 		),
 		service_health_summary: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "service_health_summary"),
-			"Cloudera Service Health Summary. 0 is GOOD, 1 is something else.",
+			"Cloudera Service Health Summary. 0=GOOD, 1=BAD, 2=DISABLED, 3=HISTORY_NOT_AVAILABLE, 4=NOT_AVAILABLE, 5=CONCERNING, -1=NOTHING_FROM_API_DOCUMENTATION.",
 			serviceLabelNames, nil,
 		),
 		service_health_summary_last_scrape: prometheus.NewDesc(
