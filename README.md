@@ -19,11 +19,11 @@ To authenticate to the Cloudera API you have to set username and password in you
 ## Optional parameters
 
 ### --cloudera.api.scrape.interval (int)
-Interval to scrape the Cloudera API in seconds for scraping in the background (don't forget to also set -cloudera.flume.scrape.interval).
+Interval to scrape the Cloudera API in seconds for scraping in the background (don't forget to also set --cloudera.flume.scrape.interval).
 ### --cloudera.api.uri (string)
 Cloudera API URI (default "http://localhost:7180/api/v6")
 ### --cloudera.flume.scrape.interval (int)
-Interval to scrape the Cloudera Flume Agents in seconds for scraping in the background (don't forget to also set -clouderaApiScrapeInterval).
+Interval to scrape the Cloudera Flume Agents in seconds for scraping in the background (don't forget to also set --cloudera.api.scrape.interval).
 ### --http.client.timeout (int)
 Timeout for the go http client in seconds for the request to the Cloudera API and the Flume Agents. (default 10)
 ### --http.client.insecure
